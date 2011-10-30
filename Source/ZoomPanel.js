@@ -1,9 +1,9 @@
-Ext.define('Ext.ux.ZoomPanel', function(){
+Ext.define('Ext.ux.ZoomPanel', {
     extend: 'Ext.Panel',
     xtype : 'zoompanel',
     
     config: {
-        baseCls: Ext.baseCSSPrefix + 'list-item',
+        baseCls: Ext.baseCSSPrefix + 'zoompanel',
 
         layout: {
             type: 'fit',
@@ -13,7 +13,7 @@ Ext.define('Ext.ux.ZoomPanel', function(){
     
     initialize: function() {
         this.touches = 0;
-        this.currentScale = 0.0;
+        this.zoom = 100.0;
         this.element.on({
             scope      : this,
             //tap        : 'onTap',
@@ -26,33 +26,32 @@ Ext.define('Ext.ux.ZoomPanel', function(){
 
     // @private
     onTouchStart: function(e) {
-        this.touches = e.touches.length;
+        this.touches = e.browserEvent.touches.length;
     },
 
     // @private
     onTouchMove: function(e) {
         e.preventDefault();
         if(this.touches == 2){
-            this.doZoom(e.scale);
+            this.doZoom(e.browserEvent.scale);
         }
     },
 
     // @private
     onTouchEnd: function(e) {
         if(this.touches == 2){
-            this.doZoom(e.scale);
+            this.doZoom(e.browserEvent.scale);
         }
-        this.touches = e.touches.length;
+        this.touches = e.browserEvent.touches.length;
     },
 
     // @private
-    doZoom: function(e) {
-        this.fireEvent('beforeZoom', [this, 100.0 * this.currentScale]));
-        this.currentScale += e.scale;
-        if(this.currentScale < 0)
-            this.currentScale = 0.0;
-        var zoom = 100.0 * this.currentScale;
-        this.element.setStyle('zoom', zoom + '%');
-        this.fireEvent('zoom', [this, zoom]));
+    doZoom: function(scale) {
+        this.fireEvent('beforeZoom', [this, this.zoom]);
+        this.zoom = 100.0 * scale;
+        if(this.zoom < 100)
+            this.zoom = 100.0;
+        this.element.setStyle('zoom', this.zoom + '%');
+        this.fireEvent('zoom', [this, this.zoom]);
     }
 });
